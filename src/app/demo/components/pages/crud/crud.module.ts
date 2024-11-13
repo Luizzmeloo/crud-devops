@@ -16,6 +16,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
+import { MessageService } from 'primeng/api'; // Importação do MessageService
+import { HttpClientModule } from '@angular/common/http'; // Para requisições HTTP, se necessário
 
 @NgModule({
     imports: [
@@ -24,6 +26,7 @@ import { DialogModule } from 'primeng/dialog';
         TableModule,
         FileUploadModule,
         FormsModule,
+        HttpClientModule, // Importante para fazer requisições HTTP
         ButtonModule,
         RippleModule,
         ToastModule,
@@ -36,6 +39,7 @@ import { DialogModule } from 'primeng/dialog';
         InputNumberModule,
         DialogModule
     ],
-    declarations: [CrudComponent]
+    declarations: [CrudComponent],
+    providers: [MessageService] // Adicione o MessageService aqui para disponibilizá-lo globalmente
 })
 export class CrudModule { }

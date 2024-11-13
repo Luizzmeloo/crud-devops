@@ -1,39 +1,41 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
 import { Observable } from 'rxjs';
-import { map }from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Product } from '../api/product';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ProductService {
-
-    private basePath ="products"
+    private basePath = "products";
 
     constructor(private db: AngularFireDatabase) { }
 
-    getProducts(): Observable<Product[]> {
-        return this.db.list<Product>(this.basePath).snapshotChanges().pipe(
-            map(changes => changes.map(c => ({ key: c.payload.key, ...c.payload.val() })))
-        );
+    // Função para buscar produtos pequenos
+    getProductsSmall(): Promise<Product[]> {
+        return this.db.list<Product>(`${this.basePath}`)
+            .valueChanges()
+            .pipe(map(products => products.slice(0, 5))) // Retorna uma lista pequena
+            .toPromise();
     }
-    
-    getProduct(key: string): Observable<Product> {
-        return this.db.object<Product>(`${this.basePath}/${key}`).snapshotChanges().pipe(
-            map(c => ({ key: c.payload.key, ...c.payload.val() }))
-        );
+
+    // Função padrão para buscar todos os produtos
+    getProducts(): Promise<Product[]> {
+        return this.db.list<Product>(this.basePath).valueChanges().toPromise();
     }
-    
-    createProduct(product: Product): any {
-        return this.db.list<Product>(this.basePath).push(product);
+
+    // Função para buscar produtos com ordens pequenas
+    getProductsWithOrdersSmall(): Promise<Product[]> {
+        return this.db.list<Product>(`${this.basePath}`)
+            .valueChanges()
+            .pipe(map(products => products.slice(0, 5))) // Exemplo para uma lista de ordens pequenas
+            .toPromise();
     }
-    
-    updateProduct(key: string, value: any): Promise<void> {
-        return this.db.object<Product>(`${this.basePath}/${key}`).update(value);
+
+    // Função para criar um produto
+    createProduct(product: Product): Promise<void> {
+        const id = product.id || this.db.createPushId(); // Usa um ID gerado ou fornecido
+        return this.db.object<Product>(`${this.basePath}/${id}`).set(product);
     }
-    
-    deleteProduct(key: string): Promise<void> {
-        return this.db.object<Product>(`${this.basePath}/${key}`).remove();
-    }
-    
 }
